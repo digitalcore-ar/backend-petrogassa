@@ -1,4 +1,12 @@
-import { BadRequestException, ConflictException, Inject, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  ConflictException,
+  Inject,
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException
+} from '@nestjs/common';
+
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -19,7 +27,6 @@ export class UsersService {
     @Inject(AuthService) private readonly authService: AuthService,
     @Inject(ExceptionService) private readonly exceptionService: ExceptionService,
   ) { }
-
 
   async create(createUserDto: CreateUserDto) {
     try {
@@ -71,8 +78,15 @@ export class UsersService {
 
   async findOne(id: string) {
     try {
-      const user = await this.findUserById(id);
+      const user = await this.userRepository.findOne({
+        where: { id },
+        select: ['id', 'email', 'permissions', 'isActive', 'createdAt', 'updatedAt'],
+      });
+      if (!user) {
+        throw new NotFoundException('User not found');
+      }
       return user;
+
     } catch (error) {
       // Re-lanzar errores de negocio directamente
       if (error instanceof BadRequestException ||

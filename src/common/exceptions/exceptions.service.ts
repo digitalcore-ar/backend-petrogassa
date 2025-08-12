@@ -14,7 +14,9 @@ export class ExceptionService {
   private readonly logger = new Logger('ExceptionService');
 
   handleDBError(error: DatabaseError, context?: string): never {
+
     this.logError(error, context);
+
     switch (error.code) {
       case PostgreSQLErrorCodes.UNIQUE_VIOLATION:
         throw new ConflictException(this.getErrorMessage(error.code, error.detail));
@@ -51,7 +53,7 @@ export class ExceptionService {
       [PostgreSQLErrorCodes.FOREIGN_KEY_VIOLATION]: 'No se puede completar la operación debido a dependencias',
       [PostgreSQLErrorCodes.NOT_NULL_VIOLATION]: 'Faltan campos obligatorios',
       [PostgreSQLErrorCodes.INVALID_TEXT_REPRESENTATION]: 'Formato de datos inválido',
-      [PostgreSQLErrorCodes.INVALID_DATETIME_FORMAT]: 'Formato de fecha inválido'
+      [PostgreSQLErrorCodes.INVALID_DATETIME_FORMAT]: 'Formato de fecha inválido',
     };
 
     return errorMessages[errorCode] || 'Error de base de datos';

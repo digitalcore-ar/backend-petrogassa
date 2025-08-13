@@ -25,7 +25,8 @@ import { User } from '../users/entities/user.entity';
       })
     })
   ],
-  exports: [AuthService]
+  exports: [AuthService, JwtModule, PassportModule]
+
 })
 
 export class AuthModule { }

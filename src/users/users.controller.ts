@@ -1,13 +1,12 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UpdateMailDto } from './dto/updateMail.dto';
 import { UpdatePasswordDto } from './dto/updatePassword.dto';
-import { GetUser } from 'src/auth/decorators/get-user.decorator';
-import { AuthGuard } from '@nestjs/passport';
 import { Auth } from 'src/auth/decorators/auth.decorator.ts.decorator';
 import { PermissionsTypes } from './enums/permissions.enum';
+import { Throttle } from '@nestjs/throttler';
 
 @Controller('users')
 export class UsersController {
@@ -19,12 +18,13 @@ export class UsersController {
   }
 
   @Get()
+  @Throttle({ short: {} })
   findAll() {
     return this.usersService.findAll();
   }
 
   @Get(':id')
-  @Auth(PermissionsTypes.SUPER_ADMIN)
+  @Auth(PermissionsTypes.SUPER_ADMIN, PermissionsTypes.USER)
   findOne(@Param('id') id: string) {
     return this.usersService.findOne(id);
   }

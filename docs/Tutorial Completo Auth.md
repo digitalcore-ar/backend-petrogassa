@@ -970,7 +970,7 @@ mkdir src/users/enums
 1. Usa el decorador compuesto @Auth() que ya tiene el orden correcto
 2. Si usas decoradores separados , mantén este orden:
    - Decoradores de metadatos ( @RoleProtected )
-   - Guards ( @UseGuards )
+   - Guards ( @UseGuards(array de guards a implementar) )
    - Método HTTP ( @Get , @Post , etc.)
    El orden correcto garantiza que la cadena de autenticación y autorización funcione como se espera.
 3. Si necesitas personalizar el flujo de autenticación , asegúrate de que tus guards estén configurados correctamente.

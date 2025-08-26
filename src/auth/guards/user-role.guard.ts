@@ -11,8 +11,11 @@ export class UserRoleGuard implements CanActivate {
   constructor(private readonly reflector: Reflector) { }
 
   canActivate(context: ExecutionContext): boolean | Promise<boolean> | Observable<boolean> {
-    //obtener permisos requeridos del decorador @RolePortected()
-    const validPermissions: string[] = this.reflector.get(META_PERMISSIONS, context.getHandler());
+    
+    const validPermissions: string[] = this.reflector.getAllAndOverride(META_PERMISSIONS, [
+      context.getHandler(), // Método (prioridad)
+      context.getClass(),   // Controlador (fallback)
+    ]);
     //si no se pasan parametros por el decorador significa que no son necesarios permisos
     if (!validPermissions || validPermissions.length === 0) {
       return true;

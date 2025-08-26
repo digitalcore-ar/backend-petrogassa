@@ -6,6 +6,9 @@ import { AuthModule } from './auth/auth.module';
 import { CommonModule } from './common/common.module';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { APP_GUARD } from '@nestjs/core';
+import { AuditLogModule } from './audit-log/audit-log.module';
+import { VehiclesModule } from './vehicles/vehicles.module';
+import { FilesModule } from './files/files.module';
 
 @Module({
   imports: [UsersModule,
@@ -29,7 +32,9 @@ import { APP_GUARD } from '@nestjs/core';
       synchronize: true
     }),
     AuthModule,
-    CommonModule
+    CommonModule,
+    VehiclesModule,
+    FilesModule,
   ],
   controllers: [],
   providers: [

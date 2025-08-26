@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseInterceptors } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -7,8 +7,10 @@ import { UpdatePasswordDto } from './dto/updatePassword.dto';
 import { Auth } from 'src/auth/decorators/auth.decorator.ts.decorator';
 import { PermissionsTypes } from './enums/permissions.enum';
 import { Throttle } from '@nestjs/throttler';
+import { AuditInterceptor } from 'src/audit-log/interceptors/audit.interceptor.interceptor';
 
 @Controller('users')
+@Auth(PermissionsTypes.SUPER_ADMIN)
 export class UsersController {
   constructor(private readonly usersService: UsersService) { }
 
@@ -24,7 +26,6 @@ export class UsersController {
   }
 
   @Get(':id')
-  @Auth(PermissionsTypes.SUPER_ADMIN, PermissionsTypes.USER)
   findOne(@Param('id') id: string) {
     return this.usersService.findOne(id);
   }

@@ -1,9 +1,9 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
-import { QueryFailedExceptionFilter } from './common/exceptions/QueryFailedException.filter';
-import { ValidationExceptionFilter } from './common/exceptions/ValidationException.filter';
-import { GeneralExceptionFilter } from './common/exceptions/GeneralException.filter';
+import { QueryFailedExceptionFilter } from './common/filters/queryFailedException.filter';
+import { ValidationExceptionFilter } from './common/filters/validationException.filter';
+import { GeneralExceptionFilter } from './common/filters/generalException.filter';
 import { ResponseInterceptor } from './common/interceptors/response.interceptor';
 
 async function bootstrap() {
@@ -18,8 +18,8 @@ async function bootstrap() {
     forbidNonWhitelisted: true,
   }))
   app.useGlobalFilters(
-    new QueryFailedExceptionFilter(),
     new ValidationExceptionFilter(),
+    new QueryFailedExceptionFilter(),
     new GeneralExceptionFilter()
   );
   app.useGlobalInterceptors(

@@ -14,4 +14,6 @@ export enum Cities {
     SALTA = 'SALTA',
     BARILOCHE = 'BARILOCHE',
     SAN_RAFAEL = 'SAN RAFAEL',
+    BUENOS_AIRES = 'BUENOS AIRES',
+    CORDOBA = 'CORDOBA'
 }

@@ -1,14 +1,14 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete, ParseUUIDPipe } from '@nestjs/common';
 import { VehiclesService } from '../services/vehicles-admin.service';
-import { CreateVehicleDto } from '../dto/create-vehicle-admin.dto';
-import { UpdateVehicleDto } from '../dto/update-vehicle-admin.dto';
+import { UpdateVehicleDto } from '../dto/admin/update-vehicle-admin.dto';
+import { CreateCompleteVehicleDto } from '../dto/admin/create-vehicle-complete.dto';
 
 @Controller('vehicles')
 export class VehiclesController {
   constructor(private readonly vehiclesService: VehiclesService) { }
 
   @Post()
-  create(@Body() createVehicleDto: CreateVehicleDto) {
+  create(@Body() createVehicleDto: CreateCompleteVehicleDto) {
     return this.vehiclesService.create(createVehicleDto);
   }
 
@@ -23,12 +23,12 @@ export class VehiclesController {
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateVehicleDto: UpdateVehicleDto) {
-    return this.vehiclesService.update(+id, updateVehicleDto);
+  update(@Param('id', ParseUUIDPipe) id: string, @Body() updateVehicleDto: UpdateVehicleDto) {
+    return this.vehiclesService.update(id, updateVehicleDto);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.vehiclesService.remove(+id);
+  remove(@Param('id', ParseUUIDPipe) id: string) {
+    return this.vehiclesService.desactivate(id);
   }
 }

@@ -2,6 +2,7 @@ import { ExceptionFilter, Catch, ArgumentsHost, HttpException, HttpStatus } from
 
 @Catch(HttpException)
 export class GeneralExceptionFilter implements ExceptionFilter {
+
     catch(exception: unknown, host: ArgumentsHost) {
         const ctx = host.switchToHttp();
         const response = ctx.getResponse();
@@ -20,8 +21,6 @@ export class GeneralExceptionFilter implements ExceptionFilter {
                 message = exceptionResponse['message'];
             }
         }
-        // Log del error para debugging
-        console.error('Unhandled exception:', exception);
 
         response.status(status).json({
             success: false,

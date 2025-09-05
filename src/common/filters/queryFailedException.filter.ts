@@ -1,6 +1,6 @@
 import { ExceptionFilter, Catch, ArgumentsHost, HttpStatus } from '@nestjs/common';
 import { QueryFailedError } from 'typeorm';
-// Interfaz para el error de PostgreSQL
+
 interface PostgresError extends Error {
     code?: string;
     detail?: string;
@@ -12,6 +12,10 @@ interface PostgresError extends Error {
 @Catch(QueryFailedError)
 export class QueryFailedExceptionFilter implements ExceptionFilter {
     catch(exception: QueryFailedError, host: ArgumentsHost) {
+        console.log('QueryFailedExceptionFilter ejecutado');
+        console.log('Exception:', exception.message);
+        console.log('Driver Error:', exception.driverError);
+
         const ctx = host.switchToHttp();
         const response = ctx.getResponse();
 
@@ -27,7 +31,7 @@ export class QueryFailedExceptionFilter implements ExceptionFilter {
     }
 
     private parseError(exception: QueryFailedError): { message: string; statusCode: HttpStatus } {
-        // Type casting para acceder a las propiedades de PostgreSQL
+
         const pgError = exception.driverError as PostgresError;
         const errorCode = pgError?.code;
 
@@ -48,6 +52,12 @@ export class QueryFailedExceptionFilter implements ExceptionFilter {
                 return {
                     statusCode: HttpStatus.BAD_REQUEST,
                     message: this.extractNotNullMessage(pgError),
+                };
+
+            case '22P02': // invalid_text_representation (enum values)
+                return {
+                    statusCode: HttpStatus.BAD_REQUEST,
+                    message: this.extractEnumViolationMessage(pgError, exception),
                 };
 
             case '23514': // check_violation
@@ -110,5 +120,25 @@ export class QueryFailedExceptionFilter implements ExceptionFilter {
         }
 
         return 'Faltan campos obligatorios';
+    }
+
+    private extractEnumViolationMessage(pgError: PostgresError, exception: QueryFailedError): string {
+        const message = exception.message || '';
+
+        // Buscar el nombre del enum en el mensaje de error
+        const enumMatch = message.match(/invalid input value for enum (\w+): "([^"]*)"/i);
+
+        if (enumMatch) {
+            const enumName = enumMatch[1];
+            const invalidValue = enumMatch[2];
+
+            // Extraer el nombre del campo del enum
+            const fieldMatch = enumName.match(/(\w+)_enum$/);
+            const fieldName = fieldMatch ? fieldMatch[1] : 'campo';
+
+            return `El valor "${invalidValue}" no es válido para el campo ${fieldName}`;
+        }
+
+        return 'Valor no válido para el campo especificado';
     }
 }

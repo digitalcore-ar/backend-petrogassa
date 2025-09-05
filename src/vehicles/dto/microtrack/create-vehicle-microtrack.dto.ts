@@ -1,14 +1,18 @@
 import { IsBoolean, IsDate, IsOptional, IsString, MaxLength } from "class-validator";
 
-export class UpdateVehicleYPFRutaDto {
+export class CreateVehicleMicrotrackDto {
     @IsOptional()
     @IsDate()
-    fecha_alta_ruta?: Date;
+    fechaAltaRuta?: Date;
+
+    @IsOptional()
+    @IsDate()
+    fechaBajaRuta?: Date;
 
     @IsOptional()
     @IsString()
     @MaxLength(25)
-    nro_ruta?: string;
+    numRuta?: string;
 
     @IsOptional()
     @IsBoolean()
@@ -16,9 +20,9 @@ export class UpdateVehicleYPFRutaDto {
 
     @IsOptional()
     @IsBoolean()
-    yer_estado?: boolean;
+    YERestado?: boolean;
 
     @IsOptional()
     @IsBoolean()
-    yer_tarjeta?: boolean;
+    YERtarjeta?: boolean;
 }

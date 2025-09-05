@@ -6,13 +6,14 @@ import {
   NotFoundException
 } from '@nestjs/common';
 
+import * as bcrypt from 'bcryptjs';
+import { Repository } from 'typeorm';
+import { InjectRepository } from '@nestjs/typeorm';
+
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
-import { Repository } from 'typeorm';
-import { AuthService } from 'src/auth/auth.service';
-import * as bcrypt from 'bcryptjs';
+import { AuthService } from '../auth/auth.service';
 import { PermissionsTypes } from './enums/permissions.enum';
 import { UpdateMailDto } from './dto/updateMail.dto';
 import { UpdatePasswordDto } from './dto/updatePassword.dto';

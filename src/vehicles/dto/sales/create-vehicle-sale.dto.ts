@@ -1,5 +1,5 @@
 import { IsDate, IsEnum, IsNotEmpty, IsOptional, IsString, MaxLength } from "class-validator";
-import { Cities } from "../../common/enums";
+import { Cities } from "../../../common/enums/Cities.enum";
 
 export class CreateVehicleSaleDto {
 

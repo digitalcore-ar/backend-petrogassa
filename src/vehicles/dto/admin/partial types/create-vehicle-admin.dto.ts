@@ -1,6 +1,6 @@
 import { IsDate, IsEmail, IsEnum, IsNotEmpty, IsNumber, IsOptional, IsString, MaxLength, ValidateIf } from 'class-validator';
-import { Cities } from '../../../common/enums';
-import { VehicleBrands, Insurances, VehiclesTypes } from '../../enums';
+import { Cities } from '../../../../common/enums';
+import { VehicleBrands, Insurances, VehiclesTypes } from '../../../enums';
 import { Transform } from 'class-transformer';
 
 export class CreateVehicleDto {

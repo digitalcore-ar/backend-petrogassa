@@ -1,4 +1,4 @@
-import { IsBoolean, IsDate, IsOptional, IsString, MaxLength } from "class-validator";
+import { IsBoolean, IsDate, IsNotEmpty, IsOptional, IsString, MaxLength } from "class-validator";
 
 export class CreateVehicleMicrotrackDto {
     @IsOptional()
@@ -14,15 +14,15 @@ export class CreateVehicleMicrotrackDto {
     @MaxLength(25)
     numRuta?: string;
 
-    @IsOptional()
+    @IsNotEmpty()
     @IsBoolean()
-    microtrack?: boolean;
+    microtrack: boolean;
 
-    @IsOptional()
+    @IsNotEmpty()
     @IsBoolean()
-    YERestado?: boolean;
+    YERestado: boolean;
 
-    @IsOptional()
+    @IsNotEmpty()
     @IsBoolean()
-    YERtarjeta?: boolean;
+    YERtarjeta: boolean;
 }

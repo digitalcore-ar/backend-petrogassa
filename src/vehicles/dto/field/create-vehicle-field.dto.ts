@@ -1,16 +1,16 @@
 import { IsArray, IsDate, IsEmail, IsEnum, IsNotEmpty, IsOptional, IsString } from "class-validator";
-import { Contracts, Operators, Zones } from "src/common/enums";
+import { Contracts, Operators, Zones } from "../../../common/enums";
 import { VehicularFunctions } from "../../enums";
 
 export class CreateVehicleFieldDto {
 
     @IsNotEmpty()
     @IsEnum(Operators)
-    operadora?: Operators;
+    operadora: Operators;
 
     @IsNotEmpty()
     @IsEnum(Zones)
-    area?: Zones;
+    area: Zones;
 
     @IsOptional()
     @IsEnum(Contracts)
@@ -34,31 +34,31 @@ export class CreateVehicleFieldDto {
 
     @IsOptional()
     @IsString()
-    equipoRadio: string;
+    equipoRadio?: string;
 
     @IsOptional()
     @IsDate()
-    vtoCertificacion: Date;
+    vtoCertificacion?: Date;
 
     @IsOptional()
     @IsEnum(Operators)
-    propietarioRadio: Operators;
+    propietarioRadio?: Operators;
 
     @IsOptional()
     @IsString()
-    nroSerieRadio: string;
+    nroSerieRadio?: string;
 
     @IsOptional()
     @IsArray()
     @IsString({ each: true })
     @IsEmail({}, { each: true })
-    correosAviso: string[];
+    correosAviso?: string[];
 
     @IsOptional()
     @IsString()
-    chofer: string;
+    chofer?: string;
 
     @IsOptional()
     @IsString()
-    nroCelularChofer: string;
+    nroCelularChofer?: string;
 }

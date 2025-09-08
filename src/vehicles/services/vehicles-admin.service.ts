@@ -1,5 +1,5 @@
 import { HttpException, Inject, Injectable, NotFoundException } from '@nestjs/common';
-import { UpdateVehicleDto } from '../dto/admin/update-vehicle-admin.dto';
+import { UpdateVehicleDto } from '../dto/admin/update-vehicle-complete.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Vehicle } from '../entities/vehicle-core.entity';
 import { DataSource, Repository } from 'typeorm';

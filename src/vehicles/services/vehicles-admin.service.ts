@@ -1,5 +1,5 @@
 import { HttpException, Inject, Injectable, NotFoundException } from '@nestjs/common';
-import { UpdateVehicleDto } from '../dto/admin/update-vehicle-complete.dto';
+import { UpdateCompleteVehicleDto } from '../dto/admin/update-vehicle-complete.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Vehicle } from '../entities/vehicle-core.entity';
 import { DataSource, Repository } from 'typeorm';
@@ -42,7 +42,10 @@ export class VehiclesService {
         manager.save(vehicleSale)
       ]);
 
-      return this.findOne(savedVehicle.id);
+      return manager.findOne(Vehicle, {
+        where: { id: savedVehicle.id },
+        relations: ['vehiclesField', 'vehiclesMicrotrack', 'vehiclesSale']
+      });
     })
   }
 
@@ -59,17 +62,51 @@ export class VehiclesService {
     return vehicles;
   }
 
-  async findOne(id: string) {
-    return await this.vehicleRepository.findOne({
+  async findOne(id: string): Promise<Vehicle> {
+    const vehicle = await this.vehicleRepository.findOne({
       where: { id },
-      relations: ['vehiclesField', 'vehiclesMicrotrack']
+      relations: ['vehiclesField', 'vehiclesMicrotrack', 'vehiclesSale']
     });
+
+    if (!vehicle) {
+      throw new NotFoundException('Vehículo no encontrado');
+    }
+
+    return vehicle;
   }
 
-  async update(id: string, updateVehicleDto: UpdateVehicleDto) {
-    await this.vehiclesStatusConditionsService.checkVehicleExist(id);
-    await this.vehicleRepository.update(id, updateVehicleDto);
-    return await this.vehicleRepository.findOneBy({ id });
+  async update(id: string, updateDto: UpdateCompleteVehicleDto) {
+    return this.dataSource.transaction(async (manager) => {
+      // 1. Verificar que el vehículo existe
+      const vehicle = await this.findOne(id);
+
+      // 2. Actualizar vehículo principal si se proporciona
+      if (updateDto.vehicle) {
+        Object.assign(vehicle, updateDto.vehicle);
+        await manager.save(vehicle);
+      }
+
+      // 3. Actualizar field si se proporciona
+      if (updateDto.field) {
+        Object.assign(vehicle.vehiclesField, updateDto.field);
+        await manager.save(vehicle.vehiclesField);
+      }
+
+      // 4. Actualizar microtrack si se proporciona
+      if (updateDto.microtrack) {
+        Object.assign(vehicle.vehiclesMicrotrack, updateDto.microtrack);
+        await manager.save(vehicle.vehiclesMicrotrack);
+      }
+
+      // 5. Actualizar sale si se proporciona
+      if (updateDto.sale) {
+        Object.assign(vehicle.vehiclesSale, updateDto.sale);
+        await manager.save(vehicle.vehiclesSale);
+      }
+
+      // 6. Retornar vehículo actualizado
+      return this.findOne(id);
+    });
   }
 
   async desactivate(id: string) {

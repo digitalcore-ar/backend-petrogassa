@@ -4,7 +4,6 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Vehicle } from '../entities/vehicle-core.entity';
 import { DataSource, Repository } from 'typeorm';
 import { Conditions } from '../enums';
-import { VehiclesStatusConditionsService } from './vehicles-status-conditions.service';
 import { CreateCompleteVehicleDto } from '../dto/admin/create-vehicle-complete.dto';
 import { VehiclesField } from '../entities/vehicles-field.entity';
 import { VehiclesMicrotrack } from '../entities/vehicle-microtrack.entity';
@@ -15,8 +14,6 @@ export class VehiclesService {
   constructor(
     @Inject(DataSource) private dataSource: DataSource,
     @InjectRepository(Vehicle) private vehicleRepository: Repository<Vehicle>,
-    @Inject(VehiclesStatusConditionsService)
-    private readonly vehiclesStatusConditionsService: VehiclesStatusConditionsService,
   ) { }
 
   async create(createCompleteVehicle: CreateCompleteVehicleDto): Promise<Vehicle | null> {
@@ -105,16 +102,30 @@ export class VehiclesService {
       }
 
       // 6. Retornar vehículo actualizado
-      return this.findOne(id);
+      return vehicle;
+      // return manager.findOne(Vehicle, {
+      //   where: { id },
+      //   relations: ['vehiclesField', 'vehiclesMicrotrack', 'vehiclesSale']
+      // });
     });
   }
 
   async desactivate(id: string) {
-    const vehicle = await this.vehiclesStatusConditionsService.checkVehicleExist(id);
+    const vehicle = await this.findOne(id);
     if (vehicle.condicion === Conditions.ACTIVO) {
       vehicle.condicion = Conditions.INACTIVO;
     } else {
       throw new HttpException('Vehicle is not active', 400);
+    }
+    return await this.vehicleRepository.save(vehicle);
+  }
+
+  async active(id: string) {
+    const vehicle = await this.findOne(id);
+    if (vehicle.condicion === Conditions.INACTIVO) {
+      vehicle.condicion = Conditions.ACTIVO;
+    } else {
+      throw new HttpException('Vehicle is active', 400);
     }
     return await this.vehicleRepository.save(vehicle);
   }

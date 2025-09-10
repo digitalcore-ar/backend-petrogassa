@@ -1,7 +1,7 @@
 import { Type } from "class-transformer";
 import { IsOptional, ValidateNested } from "class-validator";
 import { CreateVehicleDto } from "./partial types/create-vehicle-admin.dto";
-import { CreateVehicleFieldAdminDto } from "./partial types/create-vehicle-admin-field.dto";
+import { CreateVehicleAdminFieldDto } from "./partial types/create-vehicle-admin-field.dto";
 import { CreateVehicleAdminMicrotrackDto } from "./partial types/create-vehicle-admin-microtrack.dto";
 import { CreateVehicleAdminSalesDto } from "./partial types/create-vehicle-admin-sales.dto";
 
@@ -15,8 +15,8 @@ export class CreateCompleteVehicleDto {
   // Datos de campo (opcional)
   @IsOptional()
   @ValidateNested()
-  @Type(() => CreateVehicleFieldAdminDto)
-  field?: CreateVehicleFieldAdminDto;
+  @Type(() => CreateVehicleAdminFieldDto)
+  field?: CreateVehicleAdminFieldDto;
 
   // Datos de microtrack (opcional)
   @IsOptional()

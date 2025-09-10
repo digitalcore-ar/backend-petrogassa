@@ -27,8 +27,13 @@ export class VehiclesController {
     return this.vehiclesService.update(id, updateCompleteVehicleDto);
   }
 
-  @Delete(':id')
+  @Delete(':id/desactivate')
   remove(@Param('id', ParseUUIDPipe) id: string) {
     return this.vehiclesService.desactivate(id);
+  }
+
+  @Patch(':id/activate')
+  active(@Param('id', ParseUUIDPipe) id: string) {
+    return this.vehiclesService.active(id);
   }
 }

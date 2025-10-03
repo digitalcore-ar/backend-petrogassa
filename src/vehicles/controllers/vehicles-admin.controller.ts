@@ -1,11 +1,14 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, ParseUUIDPipe } from '@nestjs/common';
-import { VehiclesService } from '../services/vehicles-admin.service';
+import { Controller, Get, Post, Body, Patch, Param, Delete, ParseUUIDPipe, Inject } from '@nestjs/common';
+import { VehiclesAdminService } from '../services/vehicles-admin.service';
 import { CreateCompleteVehicleDto } from '../dto/admin/create-vehicle-complete.dto';
 import { UpdateCompleteVehicleDto } from '../dto/admin/update-vehicle-complete.dto';
 
-@Controller('vehicles')
+@Controller('vehicles/main')
 export class VehiclesController {
-  constructor(private readonly vehiclesService: VehiclesService) { }
+  constructor(
+    @Inject(VehiclesAdminService)
+    private readonly vehiclesService: VehiclesAdminService
+  ) { }
 
   @Post()
   create(@Body() createVehicleDto: CreateCompleteVehicleDto) {

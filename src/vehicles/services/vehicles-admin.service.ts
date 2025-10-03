@@ -1,4 +1,4 @@
-import { HttpException, Inject, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, HttpException, Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { UpdateCompleteVehicleDto } from '../dto/admin/update-vehicle-complete.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Vehicle } from '../entities/vehicle-core.entity';
@@ -8,12 +8,16 @@ import { CreateCompleteVehicleDto } from '../dto/admin/create-vehicle-complete.d
 import { VehiclesField } from '../entities/vehicles-field.entity';
 import { VehiclesMicrotrack } from '../entities/vehicle-microtrack.entity';
 import { VehiclesSales } from '../entities/vehicle-sale.entity';
+import { flattenObject } from 'src/common/utils/flattern.util';
+import { VehiclesStatusConditionsService } from './vehicles-status-conditions.service';
 
 @Injectable()
-export class VehiclesService {
+export class VehiclesAdminService {
   constructor(
     @Inject(DataSource) private dataSource: DataSource,
     @InjectRepository(Vehicle) private vehicleRepository: Repository<Vehicle>,
+    @Inject(VehiclesStatusConditionsService)
+    private readonly vehiclesStatusConditionsService: VehiclesStatusConditionsService,
   ) { }
 
   async create(createCompleteVehicle: CreateCompleteVehicleDto): Promise<Vehicle | null> {
@@ -48,15 +52,14 @@ export class VehiclesService {
 
   async findAll() {
     const vehicles = await this.vehicleRepository.find({
-      relations: ['vehiclesField', 'vehiclesMicrotrack']
+      relations: ['vehiclesField', 'vehiclesMicrotrack', 'vehiclesSale']
     });
+
     if (vehicles.length === 0) {
-      return {
-        message: 'No se encontraron vehículos',
-        vehicles: []
-      };
+      throw new NotFoundException('Vehicles not found');
     }
-    return vehicles;
+
+    return vehicles.map(vehicle => flattenObject(vehicle));
   }
 
   async findOne(id: string): Promise<Vehicle> {
@@ -69,13 +72,33 @@ export class VehiclesService {
       throw new NotFoundException('Vehículo no encontrado');
     }
 
-    return vehicle;
+    return flattenObject(vehicle);
   }
 
   async update(id: string, updateDto: UpdateCompleteVehicleDto) {
     return this.dataSource.transaction(async (manager) => {
       // 1. Verificar que el vehículo existe
-      const vehicle = await this.findOne(id);
+      const vehicle = await this.vehicleRepository.findOne({
+        where: { id },
+        relations: ['vehiclesField', 'vehiclesMicrotrack', 'vehiclesSale']
+      });
+
+      if (!vehicle) {
+        throw new NotFoundException('Vehículo no encontrado');
+      }
+
+      // si se intenta cargar fechaDevTitular
+      if (updateDto.vehicle?.fechaDevTitular) {
+        const hasActiveSale = vehicle.vehiclesSale && (vehicle.vehiclesSale.nombreComprador ||
+          vehicle.vehiclesSale.fechaVenta ||
+          vehicle.vehiclesSale.fechaDenunciaVenta);
+        if (hasActiveSale) {
+          throw new BadRequestException(
+            'No se puede marcar como devuelto un vehículo con venta activa. ' +
+            'Primero debe eliminar o completar la venta.'
+          );
+        }
+      }
 
       // 2. Actualizar vehículo principal si se proporciona
       if (updateDto.vehicle) {
@@ -100,13 +123,10 @@ export class VehiclesService {
         Object.assign(vehicle.vehiclesSale, updateDto.sale);
         await manager.save(vehicle.vehiclesSale);
       }
+      const updatedVehicle = await this.vehiclesStatusConditionsService.updateVehicleStatus(id);
 
       // 6. Retornar vehículo actualizado
-      return vehicle;
-      // return manager.findOne(Vehicle, {
-      //   where: { id },
-      //   relations: ['vehiclesField', 'vehiclesMicrotrack', 'vehiclesSale']
-      // });
+      return flattenObject(updatedVehicle);
     });
   }
 
